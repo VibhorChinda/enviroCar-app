@@ -21,6 +21,7 @@ package org.envirocar.app.views.dashboard;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -246,6 +247,14 @@ public class DashboardFragment extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         this.updateStatisticsVisibility(this.statisticsKnown);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("CarSelected", 0);
+        String carName = sharedPreferences.getString("Selected Car Name", null);
+        String carDescription = sharedPreferences.getString("Selected Car Description", null);
+        if(carName != null)
+        {
+            carSelectionTextPrimary.setText(carName);
+            carSelectionTextSecondary.setText(carDescription);
+        }
     }
 
     private void onToolbarItemClicked(MenuItem menuItem) {

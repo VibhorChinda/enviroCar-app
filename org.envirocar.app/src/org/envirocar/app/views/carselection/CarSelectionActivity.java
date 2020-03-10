@@ -1,14 +1,21 @@
 package org.envirocar.app.views.carselection;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.views.carselection.adapters.HorizontalRecyclerViewAdapter;
@@ -55,9 +62,24 @@ public class CarSelectionActivity extends AppCompatActivity {
         getSortingOptionsList();
         getManufactureList();
 
-        recyclerViewInterface = () -> {
-            verticalRecyclerView.setLayoutManager(verticalLayoutManager);
-            verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjects, fragmentManager, getApplicationContext()));
+        recyclerViewInterface = new RecyclerViewInterface() {
+            @Override
+            public void sendListAgain() {
+                verticalRecyclerView.setLayoutManager(verticalLayoutManager);
+                verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjects, fragmentManager, getApplicationContext()));
+            }
+
+            @Override
+            public void selectCar(String carName, String carDescription) {
+                Toast.makeText(CarSelectionActivity.this, carName + " is selected", Toast.LENGTH_SHORT).show();
+                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("CarSelected", 0);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("Selected Car Name", carName);
+                editor.putString("Selected Car Description", carDescription);
+                editor.apply();
+                finish();
+            }
+
         };
     }
 
