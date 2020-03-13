@@ -254,6 +254,7 @@ public class DashboardFragment extends BaseInjectorFragment {
         {
             carSelectionTextPrimary.setText(carName);
             carSelectionTextSecondary.setText(carDescription);
+            carIndicator.setEnabled(false);
         }
     }
 

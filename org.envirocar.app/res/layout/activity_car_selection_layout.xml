@@ -51,7 +51,7 @@
 
 
             <EditText
-                android:id="@+id/editText2"
+                android:id="@+id/search_edit_text_car_selection"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
@@ -67,7 +67,7 @@
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/imageView7"
-                app:layout_constraintStart_toStartOf="@+id/imageView4"
+                app:layout_constraintStart_toStartOf="@+id/go_back_button_car_selection"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
             <ImageView
@@ -99,7 +99,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:id="@+id/imageView4"
+                android:id="@+id/go_back_button_car_selection"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginStart="8dp"

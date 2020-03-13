@@ -10,8 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -42,6 +48,10 @@ public class CarSelectionActivity extends AppCompatActivity {
     public static RecyclerViewInterface recyclerViewInterface;
     private Toolbar toolbar;
     private ShimmerFrameLayout shimmerFrameLayout;
+    private String selectedCarName = null;
+    private int selectedCarNameId = -1;
+    private ImageView backButton;
+    private EditText searchBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +59,11 @@ public class CarSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_car_selection_layout);
 
         toolbar = findViewById(R.id.toolbar2);
+        searchBar = findViewById(R.id.search_edit_text_car_selection);
         horizontalRecyclerView = findViewById(R.id.recyclerView);
         verticalRecyclerView = findViewById(R.id.horizonta_recycler_view);
         shimmerFrameLayout = findViewById(R.id.shimmer_container);
-
+        backButton = findViewById(R.id.go_back_button_car_selection);
         toolbar.setVisibility(View.INVISIBLE);
         horizontalRecyclerView.setVisibility(View.INVISIBLE);
         verticalRecyclerView.setVisibility(View.INVISIBLE);
@@ -62,24 +73,59 @@ public class CarSelectionActivity extends AppCompatActivity {
         getSortingOptionsList();
         getManufactureList();
 
+        backButton.setOnClickListener(view -> finish());
+
+        searchBar.setOnEditorActionListener((v, actionId, event) -> {
+            switch (actionId){
+                case EditorInfo.IME_ACTION_DONE:
+                case EditorInfo.IME_ACTION_NEXT:
+                case EditorInfo.IME_ACTION_PREVIOUS:
+                    if(searchBar.getText().toString().isEmpty())
+                    {
+                        CarSelectionActivity.recyclerViewInterface.searchSelectedCars("All");
+                    }
+                    else {
+                        CarSelectionActivity.recyclerViewInterface.searchSelectedCars(searchBar.getText().toString());
+                    }
+                    return true;
+            }
+            return false;
+        });
+
         recyclerViewInterface = new RecyclerViewInterface() {
             @Override
             public void sendListAgain() {
                 verticalRecyclerView.setLayoutManager(verticalLayoutManager);
-                verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjects, fragmentManager, getApplicationContext()));
+                verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjects, fragmentManager, getApplicationContext(), selectedCarNameId, selectedCarName));
             }
 
             @Override
-            public void selectCar(String carName, String carDescription) {
-                Toast.makeText(CarSelectionActivity.this, carName + " is selected", Toast.LENGTH_SHORT).show();
+            public void selectCar(String carName, String carDescription, int selectedRadioButtonId) {
                 SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("CarSelected", 0);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("Selected Car Name", carName);
                 editor.putString("Selected Car Description", carDescription);
+                editor.putInt("Selected Radio Id", selectedRadioButtonId);
                 editor.apply();
-                finish();
             }
 
+            @Override
+            public void searchSelectedCars(String carName) {
+                ArrayList<ManufactureObject> manufactureObjectsLocal = new ArrayList<>();
+
+                if (carName.equals("All")) {
+                    manufactureObjectsLocal = manufactureObjects;
+                }
+                else {
+                    for (ManufactureObject manufactureObject : manufactureObjects) {
+                        if (manufactureObject.getName().contains(carName)) {
+                            manufactureObjectsLocal.add(manufactureObject);
+                        }
+                    }
+                }
+                    verticalRecyclerView.setLayoutManager(verticalLayoutManager);
+                    verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjectsLocal, fragmentManager, getApplicationContext()));
+            }
         };
     }
 
@@ -96,7 +142,7 @@ public class CarSelectionActivity extends AppCompatActivity {
                 manufactureObjects = response.body();
                 verticalLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
                 verticalRecyclerView.setLayoutManager(verticalLayoutManager);
-                verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjects, fragmentManager, getApplicationContext()));
+                verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjects, fragmentManager, getApplicationContext(), selectedCarNameId, selectedCarName));
                 shimmerFrameLayout.setVisibility(View.INVISIBLE);
                 shimmerFrameLayout.stopShimmerAnimation();
                 toolbar.setVisibility(View.VISIBLE);
@@ -116,20 +162,22 @@ public class CarSelectionActivity extends AppCompatActivity {
         sortingArrayList.add("All");
         sortingArrayList.add("Petrol");
         sortingArrayList.add("Diesel");
-        sortingArrayList.add("Audi");
+        sortingArrayList.add("AUDI");
         sortingArrayList.add("BMW");
         sortingArrayList.add("Electricity");
         sortingArrayList.add("Gas");
-        sortingArrayList.add("Mercedes");
+        sortingArrayList.add("FORD");
 
         horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         horizontalRecyclerView.setLayoutManager(horizontalLayoutManager);
-        horizontalRecyclerView.setAdapter(new HorizontalRecyclerViewAdapter(sortingArrayList));
+        horizontalRecyclerView.setAdapter(new HorizontalRecyclerViewAdapter(sortingArrayList, "All", getApplicationContext()));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("CarSelected", 0);
+        selectedCarName = sharedPreferences.getString("Selected Car Name", null);
+        selectedCarNameId = sharedPreferences.getInt("Selected Car Id", 0);
     }
 }
