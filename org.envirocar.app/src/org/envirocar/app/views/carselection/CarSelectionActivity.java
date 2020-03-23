@@ -1,30 +1,21 @@
 package org.envirocar.app.views.carselection;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.material.snackbar.Snackbar;
-
 import org.envirocar.app.R;
-import org.envirocar.app.views.carselection.adapters.HorizontalRecyclerViewAdapter;
+import org.envirocar.app.views.carselection.adapters.CarsRecyclerView;
+import org.envirocar.app.views.carselection.adapters.ManufacturerRecyclerView;
+import org.envirocar.app.views.carselection.adapters.SeriesRecyclerView;
 import org.envirocar.app.views.carselection.adapters.VerticalRecyclerViewAdapter;
 import org.envirocar.app.views.carselection.interfaces.RecyclerViewInterface;
 import org.envirocar.app.views.carselection.interfaces.RetrofitInterface;
@@ -38,11 +29,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CarSelectionActivity extends AppCompatActivity {
 
-    private RecyclerView horizontalRecyclerView;
     private RecyclerView verticalRecyclerView;
-    private ArrayList<String> sortingArrayList = new ArrayList<>();
+    private ArrayList<String> manufacturerNameList = new ArrayList<>();
     private ArrayList<ManufactureObject> manufactureObjects = new ArrayList<>();
-    private LinearLayoutManager horizontalLayoutManager;
     private LinearLayoutManager verticalLayoutManager;
     private FragmentManager fragmentManager = getSupportFragmentManager();
     public static RecyclerViewInterface recyclerViewInterface;
@@ -60,18 +49,15 @@ public class CarSelectionActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.toolbar2);
         searchBar = findViewById(R.id.search_edit_text_car_selection);
-        horizontalRecyclerView = findViewById(R.id.recyclerView);
         verticalRecyclerView = findViewById(R.id.horizonta_recycler_view);
         shimmerFrameLayout = findViewById(R.id.shimmer_container);
         backButton = findViewById(R.id.go_back_button_car_selection);
         toolbar.setVisibility(View.INVISIBLE);
-        horizontalRecyclerView.setVisibility(View.INVISIBLE);
         verticalRecyclerView.setVisibility(View.INVISIBLE);
         shimmerFrameLayout.setVisibility(View.VISIBLE);
         shimmerFrameLayout.startShimmerAnimation();
 
-        getSortingOptionsList();
-        getManufactureList();
+        getHardcodedManufactureList();
 
         backButton.setOnClickListener(view -> finish());
 
@@ -126,8 +112,61 @@ public class CarSelectionActivity extends AppCompatActivity {
                     verticalRecyclerView.setLayoutManager(verticalLayoutManager);
                     verticalRecyclerView.setAdapter(new VerticalRecyclerViewAdapter(manufactureObjectsLocal, fragmentManager, getApplicationContext()));
             }
+
+            @Override
+            public void seriesName() {
+                manufacturerNameList.clear();
+                manufacturerNameList.add("A Series");
+                manufacturerNameList.add("Q Series");
+                manufacturerNameList.add("S Series");
+                manufacturerNameList.add("R Series");
+                manufacturerNameList.add("e-tron Series");
+
+                verticalLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+                verticalRecyclerView.setLayoutManager(verticalLayoutManager);
+                verticalRecyclerView.setAdapter(new SeriesRecyclerView(manufacturerNameList, getApplicationContext()));
+            }
+
+            @Override
+            public void carNames() {
+                manufacturerNameList.clear();
+
+                manufacturerNameList.add("Audi Q3");
+                manufacturerNameList.add("Audi Q7");
+                manufacturerNameList.add("Audi Q5");
+                manufacturerNameList.add("Audi Q8");
+                manufacturerNameList.add("Audi New Q3");
+                manufacturerNameList.add("Audi Q7 Facelift");
+                manufacturerNameList.add("Audi Q2");
+
+                verticalLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+                verticalRecyclerView.setLayoutManager(verticalLayoutManager);
+                verticalRecyclerView.setAdapter(new CarsRecyclerView(manufacturerNameList, getApplicationContext()));
+            }
         };
     }
+
+    private void getHardcodedManufactureList() {
+        manufacturerNameList.add("Hyundai");
+        manufacturerNameList.add("BMW");
+        manufacturerNameList.add("Mercedes");
+        manufacturerNameList.add("Audi");
+        manufacturerNameList.add("Suzuki");
+        manufacturerNameList.add("Tata");
+        manufacturerNameList.add("Mahindra");
+        manufacturerNameList.add("Skoda");
+        manufacturerNameList.add("Skentla");
+        manufacturerNameList.add("Tesla");
+
+        verticalLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        verticalRecyclerView.setLayoutManager(verticalLayoutManager);
+        verticalRecyclerView.setAdapter(new ManufacturerRecyclerView(manufacturerNameList, getApplicationContext()));
+        shimmerFrameLayout.setVisibility(View.INVISIBLE);
+        shimmerFrameLayout.stopShimmerAnimation();
+        toolbar.setVisibility(View.VISIBLE);
+        verticalRecyclerView.setVisibility(View.VISIBLE);
+    }
+
 
     private void getManufactureList() {
         Retrofit.Builder builder = new Retrofit.Builder()
@@ -146,7 +185,6 @@ public class CarSelectionActivity extends AppCompatActivity {
                 shimmerFrameLayout.setVisibility(View.INVISIBLE);
                 shimmerFrameLayout.stopShimmerAnimation();
                 toolbar.setVisibility(View.VISIBLE);
-                horizontalRecyclerView.setVisibility(View.VISIBLE);
                 verticalRecyclerView.setVisibility(View.VISIBLE);
             }
 
@@ -156,28 +194,5 @@ public class CarSelectionActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void getSortingOptionsList() {
-        sortingArrayList.add("All");
-        sortingArrayList.add("Petrol");
-        sortingArrayList.add("Diesel");
-        sortingArrayList.add("AUDI");
-        sortingArrayList.add("BMW");
-        sortingArrayList.add("Electricity");
-        sortingArrayList.add("Gas");
-        sortingArrayList.add("FORD");
-
-        horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        horizontalRecyclerView.setLayoutManager(horizontalLayoutManager);
-        horizontalRecyclerView.setAdapter(new HorizontalRecyclerViewAdapter(sortingArrayList, "All", getApplicationContext()));
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("CarSelected", 0);
-        selectedCarName = sharedPreferences.getString("Selected Car Name", null);
-        selectedCarNameId = sharedPreferences.getInt("Selected Car Id", 0);
     }
 }

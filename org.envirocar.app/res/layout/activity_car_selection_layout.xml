@@ -55,7 +55,7 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/border_box"
                 android:drawablePadding="8dp"
                 android:elevation="8dp"
@@ -119,6 +119,7 @@
         android:background="@color/blue_dark_cario"
         android:elevation="4dp"
         android:padding="4dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar2"
@@ -134,7 +135,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recyclerView"
-        tools:listitem="@layout/recycler_view_car_list_item" />
+        tools:listitem="@layout/list_item_manufacturer_name" />
 
 
     <com.facebook.shimmer.ShimmerFrameLayout
